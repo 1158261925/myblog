@@ -10,6 +10,7 @@ import com.zhy.service.TagService;
 import com.zhy.service.UserService;
 import com.zhy.utils.*;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -18,10 +19,14 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.File;
 import java.io.IOException;
 import java.security.Principal;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 
 /**
@@ -197,17 +202,50 @@ public class EditorControl {
         try {
             request.setCharacterEncoding( "utf-8" );
             //设置返回头后页面才能获取返回url
-            response.setHeader("X-Frame-Options", "SAMEORIGIN");
+//            response.setHeader("X-Frame-Options", "SAMEORIGIN");
+//            FileUtil fileUtil = new FileUtil();
+//            String filePath = this.getClass().getResource("/").getPath().substring(1) + "blogImg/";
+//            String fileContentType = file.getContentType();
+//            String fileExtension = fileContentType.substring(fileContentType.indexOf("/") + 1);
+//            TimeUtil timeUtil = new TimeUtil();
+//            String fileName = timeUtil.getLongTime() + "." + fileExtension;
+             String subCatalog = "blogArticles/" + new TimeUtil().getFormatDateForThree();
+//            String fileUrl = fileUtil.uploadFile(fileUtil.multipartFileToFile(file, filePath, fileName), subCatalog);
 
-            FileUtil fileUtil = new FileUtil();
-            String filePath = this.getClass().getResource("/").getPath().substring(1) + "blogImg/";
-            String fileContentType = file.getContentType();
-            String fileExtension = fileContentType.substring(fileContentType.indexOf("/") + 1);
-            TimeUtil timeUtil = new TimeUtil();
-            String fileName = timeUtil.getLongTime() + "." + fileExtension;
+            String fileUrl = "http://www.54gwz.cn/blogImages/" + subCatalog + "/" + file.getName();
 
-            String subCatalog = "blogArticles/" + new TimeUtil().getFormatDateForThree();
-            String fileUrl = fileUtil.uploadFile(fileUtil.multipartFileToFile(file, filePath, fileName), subCatalog);
+            //获取文件的原始名称
+            String originalFilename = file.getOriginalFilename();
+            //获取文件的属性名称
+            String name = file.getName();
+            //获取最后一个.的索引
+            int index = originalFilename.lastIndexOf(".");
+            //截取文件的.后缀，如.png
+            String suffixString = originalFilename.substring(index);
+            //生成随笔码
+            UUID uuid = UUID.randomUUID();
+
+            Date date = new Date();
+
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy//MM//dd//HH//mm//ss");
+            //按路径格式生成时间，作为文件路径
+            String dateFormat = sdf.format(date);
+
+            System.out.println(dateFormat);
+            //定义文件的全路径
+            String rootPath="/Users/finup/Desktop/"+dateFormat;
+
+            File file1 = new File(rootPath);
+            //判断文件夹是否存在，不存在则创建
+            if (!file1.exists()) {
+
+                file1.mkdirs();
+            }
+            //定义文件的全路径，包括随机生成的文件名
+            String globalPath=rootPath+"//"+uuid.toString()+suffixString;
+            //将文件上传到指定的位置
+            file.transferTo(new File(globalPath));
+            //若上传成功，则将文件名和对应的路径存到map中返回
 
             resultMap.put("success", 1);
             resultMap.put("message", "上传成功");

@@ -18,7 +18,9 @@ public class FileUtil {
      * 上传文件到阿里云OSS
      * @param file 文件流
      * @return 返回文件URL
+     * 5月29日注释掉，改用自己的方式存放图片
      */
+    /**
     public String uploadFile(File file, String subCatalog){
 
         //初始化OSSClient
@@ -29,6 +31,25 @@ public class FileUtil {
         String url = AliYunOSSClientUtil.getUrl(ossClient, md5Key);
         String picUrl = "https://" + OSSClientConstants.BACKET_NAME + "." + OSSClientConstants.ENDPOINT +
                 "/" + OSSClientConstants.FOLDER + subCatalog + "/" + file.getName();
+
+        //删除临时生成的文件
+        File deleteFile = new File(file.toURI());
+        deleteFile.delete();
+
+        return picUrl;
+
+    }
+     */
+
+    /**
+     * 改写uploadFile方式，不用阿里云，改用本地存储方式
+     * @param file
+     * @param subCatalog
+     * @return
+     */
+    public String uploadFile(File file, String subCatalog){
+
+        String picUrl = "http://www.54gwz.cn/blogImages/" + subCatalog + "/" + file.getName();
 
         //删除临时生成的文件
         File deleteFile = new File(file.toURI());
